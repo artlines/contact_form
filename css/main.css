@@ -1,0 +1,15 @@
+.order_buttons,.result{
+	text-align: right;
+}
+#order_sum{
+	line-height: 32px;
+	font-weight: 700;
+}
+.out{
+	padding: 20px;
+	border: 1px solid #ccc;
+    border-radius: 4px;
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
