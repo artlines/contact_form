@@ -27,8 +27,6 @@ $(function(){
     $( "#order_form" ).on( "submit", function( event ) {
 		event.preventDefault();
 		
-    	var result = calculator();
-
 		var formData = $(this).serializefiles();
 		Pace.track(function(){
 			$.ajax
