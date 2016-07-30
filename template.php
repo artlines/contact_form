@@ -102,8 +102,6 @@
 						<p id="result"></p>
 					</div>
 					<div class="col-md-9 col-xs-12 order_buttons">
-						<a href="price.xls" download class="btn btn-default">Открыть прайс</a>
-						<input type="button" value="Рассчитать" id="calc" class="btn btn-primary">
 						<input type="submit" value="Отправить" class="btn btn-success">
 					</div>
 				</div>
@@ -112,6 +110,8 @@
 		</div>
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script type="text/javascript" src="js/jquery.maskedinput.min.js"></script>
+		<script type="text/javascript" src="js/serialize.js"></script>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
 </html>
