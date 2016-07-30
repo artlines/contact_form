@@ -15,8 +15,6 @@ class OrderPhoto
 
 	const MAIL = 'artur@gazetdinov.ru';
 
-
-	
 	function __construct($post, $files)
 	{
 		if (!empty($post) && !empty($files)) {
@@ -31,10 +29,25 @@ class OrderPhoto
 
 			chmod($this->archive_dir, 0777);
 
-			if ($this->process_files() && $this->zip_files()) {
-				$this->send_mail();
-				$this->clean_tmp();
+			try{
+				$this->process_files();	
+			} catch(Exception $e){
+				echo $e->getMessage();
 			}
+
+			try{
+				$this->zip_files();	
+			} catch(Exception $e){
+				echo $e->getMessage();
+			}
+
+			try{
+				$this->send_mail();	
+			} catch(Exception $e){
+				echo $e->getMessage();
+			}
+
+			$this->clean_tmp();
 
 			if ($this->archives_size > 200000000) {
 				rmdir($archive_dir); 
@@ -72,10 +85,10 @@ class OrderPhoto
 
 	        	if (exif_imagetype($tmp_name)) {
 			        if (!move_uploaded_file($tmp_name, "$this->tmp_dir/$name")) {
-			        	die("Ошибка обратки файлов!");
+			        	throw new Exception("Ошибка обратки файлов!");
 			        }
 	        	}else{
-			        die("Для загрузки доступны только изображения!");
+			        throw new Exception("Для загрузки доступны только изображения!");
 	        	}
 
 		    }
@@ -108,7 +121,7 @@ class OrderPhoto
 			return $this->response;
 
 		}else{
-			die('Ошибка архивации!');
+			throw new Exception('Ошибка архивации!');
 		}
 	}
 //письмо на мыло		 
@@ -151,7 +164,7 @@ class OrderPhoto
 		$mail->AltBody = 'Новый заказ на печать фотографий';
 
 		if(!$mail->send()) {
-		    die('Сообщение не было отправлено!');
+		    throw new Exception('Сообщение не было отправлено!');
 		}
 
 		return true;
