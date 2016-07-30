@@ -342,7 +342,7 @@ class OrderPhoto {
     private function removeDirectoryRecursive($path) {
         $files = glob($path . '/*', GLOB_MARK);
         foreach ($files as $file) {
-            is_dir($file) ? removeDirectory($file) : unlink($file);
+            is_dir($file) ? removeDirectoryRecursive($file) : unlink($file);
         }
         rmdir($path);
         return;
