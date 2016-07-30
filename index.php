@@ -1,6 +1,7 @@
 <?php
 
 require_once 'class.phpmailer.php';
+new OrderPhoto($_POST, $_FILES);
 
 class OrderPhoto
 {
@@ -13,45 +14,23 @@ class OrderPhoto
 	private $filename;
 	private $filelink;
 
-	const MAIL = 'artur@gazetdinov.ru';
+	const MAIL = 'example@mail.ru';
 
 	function __construct($post, $files)
 	{
 		if (!empty($post) && !empty($files)) {
 
 			$this->post = $this->validate_post($post);
-
 			$this->files = $files;
 
-			$this->tmp_dir = dirname(__FILE__).'/tmp_files/';
-			$this->archive_dir = dirname(__FILE__).'/archives/';
-			$this->archives_size = $this->size_dir();
-
-			chmod($this->archive_dir, 0777);
-
 			try{
+				$this->check_directories();
 				$this->process_files();	
-			} catch(Exception $e){
-				echo $e->getMessage();
-			}
-
-			try{
 				$this->zip_files();	
-			} catch(Exception $e){
-				echo $e->getMessage();
-			}
-
-			try{
+				$this->clean_dir($this->tmp_dir);
 				$this->send_mail();	
 			} catch(Exception $e){
 				echo $e->getMessage();
-			}
-
-			$this->clean_tmp();
-
-			if ($this->archives_size > 200000000) {
-				rmdir($archive_dir); 
-				mkdir($archive_dir); 
 			}
 
 			echo $this->response;
@@ -60,10 +39,9 @@ class OrderPhoto
 			require_once('template.php');
 		}
 	}
-//Обработка файлов, загруженных на сервер
+	//Обработка файлов, загруженных на сервер
 	private function process_files()
 	{
-		!is_dir($this->tmp_dir) && mkdir($this->tmp_dir) && chmod($this->tmp_dir, 0777);
 		foreach($this->files as $index => $file) {
 
 		    if (!is_array($file['name'])) {
@@ -95,7 +73,7 @@ class OrderPhoto
 		    return true;
 		}
 	}
-//Создание архива
+	//Создание архива
 	private function zip_files()
 	{
 		$zip = new ZipArchive;
@@ -124,7 +102,7 @@ class OrderPhoto
 			throw new Exception('Ошибка архивации!');
 		}
 	}
-//письмо на мыло		 
+	//письмо на мыло		 
 	private function send_mail()
 	{
 		$mail = new PHPMailer;
@@ -169,7 +147,7 @@ class OrderPhoto
 
 		return true;
 	}
-//определение размера директории
+	//определение размера директории
 	private function size_dir()
 	{
 	    $directory = dir($this->archive_dir);
@@ -186,16 +164,18 @@ class OrderPhoto
 	    $directory->close();
 	    return $size_dir;
 	}
-//очистка временной директории
-	private function clean_tmp()
+	//очистка директории
+	private function clean_dir($dir)
 	{
-		$files = array_diff(scandir($this->tmp_dir), array('.','..')); 
+		$files = array_diff(scandir($dir), array('.','..')); 
 	    foreach ($files as $file) { 
-	      	is_file("$this->tmp_dir/$file") && unlink("$this->tmp_dir/$file"); 
+	      	is_file("$dir/$file") && unlink("$dir/$file"); 
 		} 
-		rmdir($this->tmp_dir); 
+		if(!rmdir($dir)){
+			throw new Exception('Ошибка очистки временной директории!');
+		} 
 	}
-//очистка данных из формы
+	//очистка данных из формы
 	private function validate_post($post)
 	{
 		foreach ($post as $key => $data) {
@@ -203,6 +183,24 @@ class OrderPhoto
 		}
 		return $data_cleaned;
 	}
-}
+	//проверка директорий на существование, права и размер
+	private function check_directories(){
+		$this->tmp_dir = dirname(__FILE__).'/tmp_files/';
+		$this->archive_dir = dirname(__FILE__).'/archives/';
+		$this->archives_size = $this->size_dir();
 
-new OrderPhoto($_POST, $_FILES);
+		!is_dir($this->tmp_dir) && mkdir($this->tmp_dir);
+		if(!chmod($this->tmp_dir, 0777)){
+			throw new Exception("Ошибка прав доступа к временной директории!");
+		}
+		
+		!is_dir($this->archive_dir) && mkdir($this->archive_dir);
+		if(!chmod($this->archive_dir, 0777)){
+			throw new Exception("Ошибка прав доступа к директории для сохранения архива!");
+		}
+
+		if ($this->archives_size > 200000000) {
+			$this->clean_dir($this->archive_dir);
+		}
+	}
+}
